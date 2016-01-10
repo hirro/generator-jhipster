@@ -4,7 +4,9 @@ import com.codahale.metrics.annotation.Timed;
 import <%=packageName%>.domain.<%= entityClass %>;<% if (service != 'no') { %>
 import <%=packageName%>.service.<%= entityClass %>Service;<% } else { %>
 import <%=packageName%>.repository.<%= entityClass %>Repository;<% if (searchEngine == 'elasticsearch') { %>
-import <%=packageName%>.repository.search.<%= entityClass %>SearchRepository;<% }} %>
+import <%=packageName%>.repository.search.<%= entityClass %>SearchRepository;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;<% }} %>
 import <%=packageName%>.web.rest.util.HeaderUtil;<% if (pagination != 'no') { %>
 import <%=packageName%>.web.rest.util.PaginationUtil;<% } %><% if (dto == 'mapstruct') { %>
 import <%=packageName%>.web.rest.dto.<%= entityClass %>DTO;
@@ -122,7 +124,6 @@ public class <%= entityClass %>Resource {
     @RequestMapping(value = "/_search/<%= entityInstance %>s/{query:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public List<<%= instanceType %>> search<%= entityClass %>s(@PathVariable String query) {<%- include('../../common/search_template', {viaService: viaService}); -%>
-    }<% } %>
+    @Timed<%- include('../../common/search_template', {viaService: viaService}); -%>
+    <% } %>
 }

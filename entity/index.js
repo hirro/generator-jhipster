@@ -1352,6 +1352,8 @@ module.exports = EntityGenerator.extend({
             if (this.searchEngine == 'elasticsearch') {
                 this.template('src/main/java/package/repository/search/_EntitySearchRepository.java',
                 'src/main/java/' + this.packageFolder + '/repository/search/' + this.entityClass + 'SearchRepository.java', this, {});
+                this.template('src/main/java/package/service/search/_EntitySynchronizationService.java',
+                'src/main/java/' + this.packageFolder + '/service/search/' + this.entityClass + 'SynchronizationService.java', this, {});
             }
 
             this.template('src/main/java/package/web/rest/_EntityResource.java',

@@ -1,3 +1,18 @@
+    <%_
+    var instanceType = (dto == 'mapstruct') ? entityClass + 'DTO' : entityClass;
+    var instanceName = (dto == 'mapstruct') ? entityInstance + 'DTO' : entityInstance;
+    var mapper = entityInstance  + 'Mapper';
+    var entityToDtoReference = mapper + '::'+ entityInstance +'To' + entityClass + 'DTO';
+    %><% if (pagination != 'no') { %>
+    public ResponseEntity<List<<%= instanceType %>>> search<%= entityClass %>s(@PathVariable String query, Pageable pageable)
+        throws URISyntaxException {
+        log.debug("REST request to search <%= entityClass %>s for query {}", query);
+        final SearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(queryStringQuery(query)).build();
+        Page<<%= entityClass %>> page = <%= entityInstance %>SearchRepository.search(searchQuery.getQuery(), pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/<%= entityInstance %>s");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+	}<% } else { %>
+    public List<<%= instanceType %>> search<%= entityClass %>s(@PathVariable String query) {
 <% if (!viaService) {
     var mapper = entityInstance  + 'Mapper';
     var entityToDtoReference = mapper + '::'+ entityInstance +'To' + entityClass + 'DTO'; %>
@@ -8,3 +23,4 @@
             .collect(Collectors.toList());<% } else { %>
         log.debug("Request to search <%= entityClass %>s for query {}", query);
         return <%= entityInstance %>Service.search(query);<% } %>
+    }<% } %>

@@ -10,23 +10,55 @@ angular.module('<%=angularAppName%>')
         <%_ } _%>
         <%_ if (pagination == 'pager' || pagination == 'pagination') { _%>
         $scope.page = 1;
+        $scope.currentQuery = '';
         $scope.loadAll = function() {
-            <%= entityClass %>.query({page: $scope.page - 1, size: 20, sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']}, function(result, headers) {
-                $scope.links = ParseLinks.parse(headers('link'));
-                $scope.totalItems = headers('X-Total-Count');
-                $scope.<%= entityInstance %>s = result;
-            });
+            if ($scope.searchQuery) {
+
+                // Reset page counter when making a new query
+                if ($scope.currentQuery != $scope.searchQuery) {
+                    $scope.page = 0;
+                    $scope.currentQuery = $scope.searchQuery;
+                }
+
+                <%= entityClass %>Search.query({query: $scope.searchQuery, page: $scope.page - 1, size: 20, sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']}, function(result, headers) {
+                    $scope.links = ParseLinks.parse(headers('link'));
+                    $scope.totalItems = headers('X-Total-Count');
+                    $scope.<%= entityInstance %>s = result;
+                });
+            } else {
+                <%= entityClass %>.query({page: $scope.page - 1, size: 20, sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']}, function(result, headers) {
+                    $scope.links = ParseLinks.parse(headers('link'));
+                    $scope.totalItems = headers('X-Total-Count');
+                    $scope.<%= entityInstance %>s = result;
+                });                
+            }
         };
         <%_ } _%>
         <%_ if (pagination == 'infinite-scroll') { _%>
         $scope.page = 0;
         $scope.loadAll = function() {
-            <%= entityClass %>.query({page: $scope.page, size: 20, sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']}, function(result, headers) {
-                $scope.links = ParseLinks.parse(headers('link'));
-                for (var i = 0; i < result.length; i++) {
-                    $scope.<%= entityInstance %>s.push(result[i]);
+            if ($scope.searchQuery) {
+
+                // Reset page counter when making a new query
+                if ($scope.currentQuery != $scope.searchQuery) {
+                    $scope.page = 0;
+                    $scope.currentQuery = $scope.searchQuery;
                 }
-            });
+                                
+                <%= entityClass %>Search.query({query: $scope.searchQuery, page: $scope.page, size: 20, sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']}, function(result, headers) {
+                    $scope.links = ParseLinks.parse(headers('link'));
+                    for (var i = 0; i < result.length; i++) {
+                        $scope.<%= entityInstance %>s.push(result[i]);
+                    }
+                });
+            } else {
+                <%= entityClass %>.query({page: $scope.page, size: 20, sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']}, function(result, headers) {
+                    $scope.links = ParseLinks.parse(headers('link'));
+                    for (var i = 0; i < result.length; i++) {
+                        $scope.<%= entityInstance %>s.push(result[i]);
+                    }
+                });                
+            }
         };
         $scope.reset = function() {
             $scope.page = 0;
@@ -42,9 +74,19 @@ angular.module('<%=angularAppName%>')
         <%_ } _%>
         <%_ if (pagination == 'no') { _%>
         $scope.loadAll = function() {
-            <%= entityClass %>.query(function(result) {
-               $scope.<%= entityInstance %>s = result;
-            });
+            if ($scope.searchQuery) {
+                <%= entityClass %>Search.query({query: $scope.searchQuery}, function(result) {
+                    $scope.<%= entityInstance %>s = result;
+                }, function(response) {
+                    if(response.status === 404) {
+                        $scope.loadAll();
+                    }
+                });                
+            } else {
+                <%= entityClass %>.query(function(result) {
+                   $scope.<%= entityInstance %>s = result;
+                });
+            }
         };
         <%_ } _%>
         $scope.loadAll();
@@ -52,13 +94,7 @@ angular.module('<%=angularAppName%>')
         <%_ if (searchEngine == 'elasticsearch') { _%>
 
         $scope.search = function () {
-            <%= entityClass %>Search.query({query: $scope.searchQuery}, function(result) {
-                $scope.<%= entityInstance %>s = result;
-            }, function(response) {
-                if(response.status === 404) {
-                    $scope.loadAll();
-                }
-            });
+            $scope.loadAll();
         };
         <%_ } _%>
 
