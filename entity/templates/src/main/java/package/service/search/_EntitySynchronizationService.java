@@ -1,8 +1,8 @@
 package <%=packageName%>.service.search;
 
-import com.mycompany.myapp.domain.<%= entityClass %>;
-import com.mycompany.myapp.repository.<%= entityClass %>Repository;
-import com.mycompany.myapp.repository.search.<%= entityClass %>SearchRepository;
+import <%=packageName%>.domain.<%= entityClass %>;
+import <%=packageName%>.repository.<%= entityClass %>Repository;
+import <%=packageName%>.repository.search.<%= entityClass %>SearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
