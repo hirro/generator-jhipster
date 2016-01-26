@@ -23,7 +23,7 @@ import org.springframework.data.domain.Pageable;<% } if (databaseType == 'sql') 
 import org.springframework.transaction.annotation.Transactional;<% } %>
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;<% if (dto == 'mapstruct') { %>
+import javax.inject.Inject;<% if ((dto == 'mapstruct') || (pagination == 'no' && databaseType == 'sql')) { %>
 import java.util.LinkedList;<% } %>
 import java.util.List;
 import java.util.Optional;<% if (databaseType == 'cassandra') { %>
