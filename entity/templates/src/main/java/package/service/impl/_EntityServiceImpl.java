@@ -82,12 +82,20 @@ public class <%= serviceClassName %> <% if (service == 'serviceImpl') { %>implem
         log.debug("Request to delete <%= entityClass %> : {}", id);<%- include('../../common/delete_template', {viaService: viaService}); -%>
     }<% if (searchEngine == 'elasticsearch') { %>
 
+
     /**
      * search for the <%= entityInstance %> corresponding
      * to the query.
      */<% if (databaseType == 'sql') { %>
     @Transactional(readOnly = true) <% } %>
-    public List<<%= instanceType %>> search(String query) {
-        <%- include('../../common/search_template', {viaService: viaService}); -%>
-    }<% } %>
+    public <% if (pagination != 'no') { %>Page<<%= entityClass %><% } else { %>List<<%= instanceType %><% } %>> search(String query<% if (pagination != 'no') { %>, Pageable pageable<% } %>) {
+        log.debug("Request to search <%= entityClass %>s with query {}", query);<% if (pagination == 'no') { %>
+        List<<%= instanceType %>> result = new ArrayList<>();
+        <%= entityInstance %>SearchRepository.<% if (fieldsContainOwnerManyToMany == true) { %>XXXfindAllWithEagerRelationships<% } else { %>search<% } %>(queryStringQuery(query))<% if (dto == 'mapstruct') { %>.forEach((item) -> {
+            result.add(testDtoServiceMapper.testDtoServiceToTestDtoServiceDTO(item));
+        });<% } %>;<% } else { %>
+        Page<<%= entityClass %>> result = <%= entityInstance %>Repository.search(queryStringQuery(query), pageable); <% } %>
+        return result;
+    }
+<%- include('../../common/search_filtered_template'); -%>    
 }
