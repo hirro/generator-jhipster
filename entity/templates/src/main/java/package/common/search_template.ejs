@@ -5,17 +5,17 @@
     var entityToDtoReference = mapper + '::'+ entityInstance +'To' + entityClass + 'DTO';
     if (dto == 'mapstruct') { %>
     @Transactional(readOnly = true)<% } if (pagination == 'no') { %>
-    public List<<%= instanceType %>> search<%= entityClass %>s(<% if (fieldsContainNoOwnerOneToOne) { %>@RequestParam(required = false) String filter<% } %>) {<%- include('search_stream_template', {viaService: viaService}); -%>
+    public List<<%= instanceType %>> search<%= entityClass %>s(@PathVariable String query<% if (fieldsContainNoOwnerOneToOne) { %>, @RequestParam(required = false) String filter<% } %>) {<%- include('search_stream_template', {viaService: viaService}); -%>
         log.debug("REST request to search <%= entityClass %>s for query {}", query);<% if (viaService) { %>
         return <%= entityInstance %>Service.search(query);<% } else { %>
         return StreamSupport
             .stream(<%= entityInstance %>SearchRepository.<% if (fieldsContainOwnerManyToMany) { %>searchWithEagerRelationships<% } else { %>search<% } %>(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());<% if (dto == 'mapstruct') { %>XXXX<% } %>;<% } %>
+            .collect(Collectors.toList())<% if (dto == 'mapstruct') { %>XXXX<% } %>;<% } %>
             <% } if (pagination != 'no') { %>
-    public ResponseEntity<List<<%= instanceType %>>> search<%= entityClass %>s(Pageable pageable<% if (fieldsContainNoOwnerOneToOne) { %>, @RequestParam(required = false) String filter<% } %>)
+    public ResponseEntity<List<<%= instanceType %>>> search<%= entityClass %>s(@PathVariable String query, Pageable pageable<% if (fieldsContainNoOwnerOneToOne) { %>, @RequestParam(required = false) String filter<% } %>)
         throws URISyntaxException {<%- include('search_stream_template', {viaService: viaService}); -%>
         log.debug("REST request to get a search page of <%= entityClass %>s for query {}", query);<% if (viaService) { %>
-        Page<<%= entityClass %>> page = <%= entityInstance %>Service.search(pageable, query); <% } else { %>
+        Page<<%= entityClass %>> page = <%= entityInstance %>Service.search(query, pageable); <% } else { %>
         Page<<%= entityClass %>> page = <%= entityInstance %>SearchRepository.search(queryStringQuery(query), pageable); <% } %>
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/<%= entityInstance %>s");
         return new ResponseEntity<>(page.getContent()<% if (dto == 'mapstruct') { %>.stream()

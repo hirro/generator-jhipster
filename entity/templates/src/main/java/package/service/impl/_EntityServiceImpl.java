@@ -90,12 +90,13 @@ public class <%= serviceClassName %> <% if (service == 'serviceImpl') { %>implem
     @Transactional(readOnly = true) <% } %>
     public <% if (pagination != 'no') { %>Page<<%= entityClass %><% } else { %>List<<%= instanceType %><% } %>> search(String query<% if (pagination != 'no') { %>, Pageable pageable<% } %>) {
         log.debug("Request to search <%= entityClass %>s with query {}", query);<% if (pagination == 'no') { %>
-        List<<%= instanceType %>> result = new ArrayList<>();
+        List<<%= instanceType %>> result = new LinkedList<>();
         <%= entityInstance %>SearchRepository.<% if (fieldsContainOwnerManyToMany == true) { %>XXXfindAllWithEagerRelationships<% } else { %>search<% } %>(queryStringQuery(query))<% if (dto == 'mapstruct') { %>.forEach((item) -> {
             result.add(testDtoServiceMapper.testDtoServiceToTestDtoServiceDTO(item));
         });<% } %>;<% } else { %>
-        Page<<%= entityClass %>> result = <%= entityInstance %>Repository.search(queryStringQuery(query), pageable); <% } %>
+        Page<<%= entityClass %>> result = <%= entityInstance %>SearchRepository.search(queryStringQuery(query), pageable); <% } %>
         return result;
     }
 <%- include('../../common/search_filtered_template'); -%>    
+<% } %>
 }

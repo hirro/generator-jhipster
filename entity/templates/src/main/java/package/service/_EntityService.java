@@ -45,8 +45,9 @@ public interface <%= entityClass %>Service {
     public void delete(<%= pkType %> id);<% if (searchEngine == 'elasticsearch') { %>
 
     /**
-     * search for the <%= entityInstance %> corresponding
-     * to the query.
+     *  get all the <%= entityInstance %>s.
+     *  @return the list of entities
      */
-    public List<<%= instanceType %>> search(String query);<% } %>
+    public <% if (pagination != 'no') { %>Page<<%= entityClass %><% } else { %>List<<%= instanceType %><% } %>> search(String query<% if (pagination != 'no') { %>, Pageable pageable<% } %>);
+<% } -%>
 }
