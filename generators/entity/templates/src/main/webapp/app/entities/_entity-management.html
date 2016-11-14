@@ -21,10 +21,8 @@
                             <button class="btn btn-info" ng-click="vm.search(vm.searchQuery)">
                                 <span class="glyphicon glyphicon-search"></span>
                             </button>
-                        </span>
-                        <span class="input-group-btn width-min" ng-if="vm.currentSearch">
-                            <button class="btn btn-info" ng-click="vm.clear()">
-                                <span class="glyphicon glyphicon-trash"></span>
+                            <button ng-if="vm.currentSearch" class="btn btn-info" ng-click="vm.clear()">
+                                <span class="glyphicon glyphicon-remove"></span>
                             </button>
                         </span>
                     </div>
